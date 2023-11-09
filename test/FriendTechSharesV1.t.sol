@@ -8,6 +8,6 @@ contract FriendtechSharesV1Test is Test {
     FriendtechSharesV1 public friendtech;
 
     function setUp() public {
-        counterfriendtech = new FriendtechSharesV1();
+        friendtech = new FriendtechSharesV1();
     }
 }
