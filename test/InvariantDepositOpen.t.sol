@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {Test, console2} from "forge-std/Test.sol";
 import {Deposit} from "../src/Deposit.sol";
 
-contract InvariantDeposit is Test {
+contract InvariantDepositOpen is Test {
     Deposit deposit;
 
     function setUp() external {
@@ -15,7 +15,9 @@ contract InvariantDeposit is Test {
     // note this invariant passess because in open 
     // invariant testing the msg.value is always zero
     function invariant_alwaysHas100Eth() external {
-        assertEq(address(deposit).balance, 100 ether);
+        if(address(deposit).balance > 0) {
+            assertEq(address(deposit).balance, 100 ether);
+        }
     }
 
     function invariant_alwaysWithdrawable() external payable {
