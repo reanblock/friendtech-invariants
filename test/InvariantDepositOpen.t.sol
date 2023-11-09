@@ -19,7 +19,9 @@ contract InvariantDepositOpen is Test {
             assertEq(address(deposit).balance, 100 ether);
         }
     }
-
+  
+    /// forge-config: default.invariant.runs = 500
+    /// forge-config: default.invariant.depth = 100
     function invariant_alwaysWithdrawable() external payable {
         deposit.deposit{value: 1 ether}();
         uint256 balanceBefore = deposit.balance(address(this));

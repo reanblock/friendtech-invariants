@@ -20,4 +20,14 @@ contract Deposit {
         require(s, "failed to send");
     }
 
+    /*  
+        Uncomment to introduce a vulnerability
+        here changeBalance allows anyone to update the balance
+        of any depositor in the balance mapping!
+
+        This will cause the invariant_alwaysWithdrawable to fail!
+    */
+    // function changeBalance(address depositor, uint amount) public {
+    //     balance[depositor] = amount;
+    // }
 }
