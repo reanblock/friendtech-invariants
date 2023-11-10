@@ -6,7 +6,7 @@ import {CommonBase} from "forge-std/Base.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {StdUtils} from "forge-std/StdUtils.sol";
 
-import {Deposit} from "../src/Deposit.sol";
+import {Deposit} from "../../src/Deposit.sol";
 
 contract DepositHandler is CommonBase, StdCheats, StdUtils {
     Deposit private deposit;

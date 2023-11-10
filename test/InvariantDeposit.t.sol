@@ -1,7 +1,7 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {DepositHandler} from "./DepositHandler.t.sol";
+import {DepositHandler} from "./handlers/DepositHandler.t.sol";
 import {Deposit} from "../src/Deposit.sol";
 
 contract InvariantDepositHandler is Test {
