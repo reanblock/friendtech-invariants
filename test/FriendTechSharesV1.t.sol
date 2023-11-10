@@ -2,14 +2,19 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
+import {FriendTechHandler} from "./handlers/FriendTechHandler.t.sol";
 import {FriendtechSharesV1} from "../src/FriendtechSharesV1.sol";
 
 contract FriendtechSharesV1Test is Test {
     FriendtechSharesV1 public friendtech;
+    FriendTechHandler public handler;
 
     function setUp() public {
         friendtech = new FriendtechSharesV1();
         vm.deal(address(this), 100 ether);
+
+        handler = new FriendTechHandler(friendtech);
+        targetContract(address(handler));
 
         // ititiate the shares supply
         friendtech.buyShares{value: 0}(address(this), 1);
@@ -46,7 +51,8 @@ contract FriendtechSharesV1Test is Test {
 
         assertEq(sharesBalanceOfTestContract + sharesBalanceOfAlice, totalSharesSupplyOfSubject);
     }
-
+    /// forge-config: default.invariant.runs = 256
+    /// forge-config: default.invariant.depth = 15
     function invariant_totalSharesSupplyAlwaysEqTotalSharesBalance()  public {
         // the total subject shares supply should always eq 
         // the sum of the total of shares balance for each holder
