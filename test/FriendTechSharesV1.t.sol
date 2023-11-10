@@ -56,6 +56,26 @@ contract FriendtechSharesV1Test is Test {
     function invariant_totalSharesSupplyAlwaysEqTotalSharesBalance()  public {
         // the total subject shares supply should always eq 
         // the sum of the total of shares balance for each holder
+        uint256 sharesSubjectsLength = handler.sharesSubjectsLength();
+        uint256 holderLength = handler.shareHoldersLength();
+        uint256 totalSharesSupply;
+        uint256 shareHolderSupply;
+
+        for(uint i; i<sharesSubjectsLength;) {
+            address sharesSubject = handler.sharesSubjects(i);
+            totalSharesSupply += friendtech.sharesSupply(sharesSubject);
+            for(uint j; j<holderLength;) {
+                address holder = handler.shareHolders(j);
+                shareHolderSupply += friendtech.sharesBalance(sharesSubject, holder);
+                unchecked { ++j; }
+            }
+            unchecked { ++i; }
+        }
+
+        // console2.log("Total Shares Supply: ", totalSharesSupply);
+        // console2.log("Total Share Holders Supply: ", shareHolderSupply);
+
+        assertEq(totalSharesSupply, shareHolderSupply);
     }
 
     receive() external payable {}
