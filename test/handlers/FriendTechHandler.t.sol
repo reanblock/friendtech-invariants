@@ -11,12 +11,10 @@ import {FriendtechSharesV1} from "../../src/FriendtechSharesV1.sol";
 contract FriendTechHandler is CommonBase, StdCheats, StdUtils {
     FriendtechSharesV1 private friendtech;
 
-    // keep track of the distinct share subjects and share holders
+    // keep track of the share subjects and the share holders
     address[] public sharesSubjects;
-    address[] public shareHolders;
-
     mapping(address => bool) shareSubjectsMapping;
-    mapping(address => bool) shareHoldersMapping;
+    mapping(address => address[]) public shareSubjectToShareHolderMapping;
     
     constructor(FriendtechSharesV1 _friendtech) {
         friendtech = _friendtech;
@@ -28,42 +26,62 @@ contract FriendTechHandler is CommonBase, StdCheats, StdUtils {
             // hoax the sharesSubject as a new account and initialize the first share   
             hoax(sharesSubject, 1 ether);
             friendtech.buyShares{value: 0}(sharesSubject, 1);
-            // add the sharesSubject to the sharesHolder list since they
-            // will always own the first share
-            addShareHolder(sharesSubject);
+            
+            addShare(sharesSubject, sharesSubject);
         }
+        
         uint256 price = friendtech.getBuyPrice(sharesSubject, amount);
         hoax(msg.sender, price);
         friendtech.buyShares{value: price}(sharesSubject, amount);
 
-        addSharesSubject(sharesSubject);
-        addShareHolder(msg.sender);
+        addShare(sharesSubject, msg.sender);
     }
 
-    // @todo implement to complete the test!
-    // function sellShares() public {
 
+
+    // @todo implement to complete the test!
+    // function sellShares(uint256 sharesIndex, uint8 amount) public {
+    //     if(sharesSubjects.length > 0 ){
+    //         sharesIndex= bound(sharesIndex, 0, sharesSubjects.length-1);
+    //         address sharesSubject = sharesSubjects[sharesIndex];
+    //         // address sharesHolders = shareHolders[sharesIndex];
+    //         address shareHolder = shareSubjectToShareHolderMapping[sharesSubject];
+    //         // shareHolderIndex = bound(shareHolderIndex, 0, shareHoldersForSubject.length -1);
+    //         // address shareHolder = shareHoldersForSubject[shareHolderIndex];
+    //         // console2.log("No. of share holders: ", shareHoldersForSubject.length);
+    //         // console2.log("The chosen share holder is: ", shareHolder);
+    //         console2.log("Own shares?: ", friendtech.sharesBalance(sharesSubject, shareHolder));
+
+    //         // for(uint256 i; i< shareHoldersForSubject.length;) {
+    //             // console2.log("shareHolders: ", shareHoldersForSubject[i]);
+    //             // ++i;
+    //         // }
+
+    //         // console2.log("Selling index: ", sharesIndex);
+    //         console2.log("Selling shares: ", sharesSubject, amount);
+    //         // vm.prank(msg.sender);
+    //         // console2.log("Own shares?: ", shareSubjectsMapping[sharesSubject]);
+    //         // vm.prank(msg.sender);
+    //         // friendtech.sellShares(sharesSubject, amount);
+    //     }
     // }
 
     // Helpers //
+
+    function addShare(address sharesSubject, address shareHolder) private {
+        shareSubjectToShareHolderMapping[sharesSubject].push(shareHolder);
+
+        if (!shareSubjectsMapping[sharesSubject]) {
+            sharesSubjects.push(sharesSubject);
+            shareSubjectsMapping[sharesSubject] = true;
+        }
+    }
     function sharesSubjectsLength() public view returns(uint) {
         return sharesSubjects.length;
     }
-    function shareHoldersLength() public view returns(uint) {
-        return shareHolders.length;
+
+    function shareHoldersLength(address sharesSubject) public view returns(uint) {
+        return shareSubjectToShareHolderMapping[sharesSubject].length;
     }
 
-    function addShareHolder(address shareHolder) private {
-        if (!shareHoldersMapping[shareHolder]) {
-            shareHolders.push(shareHolder);
-        }
-        shareHoldersMapping[shareHolder] = true;
-    }
-
-    function addSharesSubject(address sharesSubject) private {
-        if (!shareSubjectsMapping[sharesSubject]) {
-            sharesSubjects.push(sharesSubject);
-        }
-        shareSubjectsMapping[sharesSubject] = true;
-    }
 }

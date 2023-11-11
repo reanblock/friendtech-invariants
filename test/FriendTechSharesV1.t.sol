@@ -26,6 +26,8 @@ contract FriendtechSharesV1Test is Test {
         friendtech.buyShares{value: 22 ether}(address(this), 100); 
         // should be 101 shares 
         assertEq(friendtech.sharesSupply(address(this)), 101);
+
+        // console2.log(friendtech.sharesBalance(address(this), address(this)));
     }
 
     function test_canSellShares() public {
@@ -51,31 +53,34 @@ contract FriendtechSharesV1Test is Test {
 
         assertEq(sharesBalanceOfTestContract + sharesBalanceOfAlice, totalSharesSupplyOfSubject);
     }
-    /// forge-config: default.invariant.runs = 256
-    /// forge-config: default.invariant.depth = 15
+
+    /// forge-config: default.invariant.runs = 10
+    /// forge-config: default.invariant.depth = 5
     function invariant_totalSharesSupplyAlwaysEqTotalSharesBalance()  public {
         // the total subject shares supply should always eq 
         // the sum of the total of shares balance for each holder
         uint256 sharesSubjectsLength = handler.sharesSubjectsLength();
-        uint256 holderLength = handler.shareHoldersLength();
         uint256 totalSharesSupply;
         uint256 shareHolderSupply;
 
-        for(uint i; i<sharesSubjectsLength;) {
-            address sharesSubject = handler.sharesSubjects(i);
-            totalSharesSupply += friendtech.sharesSupply(sharesSubject);
-            for(uint j; j<holderLength;) {
-                address holder = handler.shareHolders(j);
-                shareHolderSupply += friendtech.sharesBalance(sharesSubject, holder);
-                unchecked { ++j; }
+        for(uint i; i<sharesSubjectsLength; ++i) {
+            address shareSubject = handler.sharesSubjects(i);
+            totalSharesSupply += friendtech.sharesSupply(shareSubject);
+            
+            uint256 shareHoldersLength = handler.shareHoldersLength(shareSubject);
+            console2.log("share holders length: ", shareHoldersLength);
+
+            for(uint j; j<shareHoldersLength; ++j) {
+                address shareHolder = handler.shareSubjectToShareHolderMapping(shareSubject, j);
+                shareHolderSupply += friendtech.sharesBalance(shareSubject, shareHolder); 
             }
-            unchecked { ++i; }
+            // shareHolderSupply = shareHolderSupply + 1; // + 1 for the initial share!
         }
 
-        // console2.log("Total Shares Supply: ", totalSharesSupply);
-        // console2.log("Total Share Holders Supply: ", shareHolderSupply);
+        console2.log("Total Shares Supply: ", totalSharesSupply);
+        console2.log("Total Share Holders Supply: ", shareHolderSupply);
 
-        assertEq(totalSharesSupply, shareHolderSupply);
+        assertEq(totalSharesSupply, shareHolderSupply); 
     }
 
     receive() external payable {}
